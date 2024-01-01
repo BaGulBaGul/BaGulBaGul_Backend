@@ -1,0 +1,4 @@
+[submodule "BaGulBaGul_Backend_Main"]
+	path = BaGulBaGul_Backend_Main
+	url = https://github.com/BaGulBaGul/BaGulBaGul_Backend_Main.git
+    branch = develop
