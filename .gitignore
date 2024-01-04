@@ -1,3 +1,9 @@
+### docker ###
+#mysql
+/mysql/mysql_data/
+/mysql/.env
+
+
 HELP.md
 todo.md
 .gradle
