@@ -1,0 +1,49 @@
+version: "3"
+name: "bagulbagul"
+
+services:
+  nginx:
+    image: nginx
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/cert:/etc/nginx/cert
+    environment:
+      - TZ=Asia/Seoul
+    depends_on:
+      - backend
+  #
+  mysql:
+    env_file:
+      - ./mysql/.env
+    image: ohretry/bagulbagul-backend-mysql
+    build:
+      dockerfile: Dockerfile
+      context: ./mysql
+    restart: unless-stopped
+    #디버그용 db접근 포트
+    ports:
+      - 4000:3306
+    volumes:
+      - ./mysql/mysql_data:/var/lib/mysql
+      - ./mysql/sqls/:/docker-entrypoint-initdb.d/
+  #
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    entrypoint: ["redis-server", "--port", "6379"]
+  #
+  backend:
+    env_file:
+      - ./BaGulBaGul_Backend_Main/.env
+    image: ohretry/bagulbagul-backend-main
+    build:
+      dockerfile: Dockerfile
+      context: ./BaGulBaGul_Backend_Main
+    depends_on:
+      - mysql
+      - redis
+    #mysql이 커넥션을 받을 준비가 될 때까지 기다렸다가 jar 실행
+    entrypoint: [ "sh", "-c", "./wait-for-it.sh -t 1000 mysql:3306 && java -jar BaGulBaGul-0.0.1-SNAPSHOT.jar" ]
